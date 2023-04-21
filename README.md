@@ -9,21 +9,31 @@ package main
 
 import (
 	"github.com/cit965/ctp"
+	"time"
 )
 
 func main() {
-	engine := ctp.Default()
-	engine.GET("/foo", FooControllerHandler)
-	g := engine.Group("/boo")
+	r := ctp.Default()
+	r.GET("/foo", ctp.Recovery(), ctp.Log(), FooControllerHandler)
+	g := r.Group("/boo")
+	g.Use(ctp.Log())
 	{
 		g.GET("/hello", FooControllerHandler)
 		g.GET("/xx/:id", FooControllerHandler)
 	}
-	engine.Run(":8000")
+	r.Run(":8000")
 
 }
 
 func FooControllerHandler(c *ctp.Context) {
+	time.Sleep(time.Second * 3)
 	c.Json(200, "success")
 }
 ```
+
+#### use middle
+
+there are two ways to add middleware
+
+1. add to group
+2. add to single router
