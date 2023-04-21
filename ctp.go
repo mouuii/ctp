@@ -8,19 +8,19 @@ import (
 
 type HandlerFunc func(*Context)
 
-type Engin struct {
+type Engine struct {
 	router map[string]HandlerFunc
 }
 
-func Default() *Engin {
-	return &Engin{router: map[string]HandlerFunc{}}
+func Default() *Engine {
+	return &Engine{router: map[string]HandlerFunc{}}
 }
 
-func (e *Engin) GET(url string, hander HandlerFunc) {
-	e.router[url] = hander
+func (e *Engine) GET(url string, handler HandlerFunc) {
+	e.router[url] = handler
 }
 
-func (e *Engin) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+func (e *Engine) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 
 	ctx := NewContext(request, response)
 	path := strings.Trim(request.URL.Path, "/")
@@ -33,4 +33,9 @@ func (e *Engin) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	log.Println("执行注册的handler")
 
 	router(ctx)
+}
+
+func (e *Engine) Run(addr string) {
+	log.Println("start to listen on port:", addr)
+	http.ListenAndServe(addr, e)
 }
