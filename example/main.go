@@ -2,17 +2,12 @@ package main
 
 import (
 	"github.com/cit965/ctp"
-	"net/http"
 )
 
 func main() {
-	engin := ctp.Default()
-	engin.GET("foo", FooControllerHandler)
-	server := &http.Server{
-		Addr:    ":8000",
-		Handler: engin,
-	}
-	server.ListenAndServe()
+	engine := ctp.Default()
+	engine.GET("foo", FooControllerHandler)
+	engine.Run(":8000")
 
 }
 
