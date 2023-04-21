@@ -2,9 +2,10 @@ package ctp
 
 // Group router group, a Group is associated with a prefix and parent group
 type Group struct {
-	engine *Engine
-	prefix string
-	parent *Group
+	engine      *Engine
+	prefix      string
+	parent      *Group
+	middlewares []HandlerFunc // 存放中间件
 }
 
 func NewGroup(e *Engine, prefix string) *Group {
@@ -22,22 +23,37 @@ func (g *Group) getTotalPath() string {
 	return g.parent.getTotalPath() + g.prefix
 }
 
-func (g *Group) POST(uri string, handler HandlerFunc) {
+func (g *Group) POST(uri string, handlers ...HandlerFunc) {
 	uri = g.getTotalPath() + uri
-	g.engine.POST(uri, handler)
+	allHandlers := append(g.getMiddlewares(), handlers...)
+	g.engine.POST(uri, allHandlers...)
 }
 
-func (g *Group) PUT(uri string, handler HandlerFunc) {
+func (g *Group) PUT(uri string, handlers ...HandlerFunc) {
 	uri = g.getTotalPath() + uri
-	g.engine.PUT(uri, handler)
+	allHandlers := append(g.getMiddlewares(), handlers...)
+	g.engine.PUT(uri, allHandlers...)
 }
 
-func (g *Group) DELETE(uri string, handler HandlerFunc) {
+func (g *Group) DELETE(uri string, handlers ...HandlerFunc) {
 	uri = g.getTotalPath() + uri
-	g.engine.DELETE(uri, handler)
+	allHandlers := append(g.getMiddlewares(), handlers...)
+	g.engine.DELETE(uri, allHandlers...)
 }
 
-func (g *Group) GET(uri string, handler HandlerFunc) {
+func (g *Group) GET(uri string, handlers ...HandlerFunc) {
 	uri = g.getTotalPath() + uri
-	g.engine.GET(uri, handler)
+	allHandlers := append(g.getMiddlewares(), handlers...)
+	g.engine.GET(uri, allHandlers...)
+}
+
+func (g *Group) getMiddlewares() []HandlerFunc {
+	if g.parent == nil {
+		return g.middlewares
+	}
+
+	return append(g.parent.getMiddlewares(), g.middlewares...)
+}
+func (g *Group) Use(middlewares ...HandlerFunc) {
+	g.middlewares = append(g.middlewares, middlewares...)
 }

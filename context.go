@@ -9,14 +9,17 @@ import (
 
 // Context is the most important part of ctp. It allows us get http request and response
 type Context struct {
-	Request *http.Request
-	Writer  http.ResponseWriter
+	Request  *http.Request
+	Writer   http.ResponseWriter
+	handlers []HandlerFunc
+	index    int
 }
 
 func NewContext(r *http.Request, w http.ResponseWriter) *Context {
 	return &Context{
 		Request: r,
 		Writer:  w,
+		index:   -1,
 	}
 }
 
@@ -46,4 +49,16 @@ func (ctx *Context) Json(status int, obj interface{}) {
 		log.Print(err)
 	}
 	ctx.Writer.Write(byt)
+}
+
+// 核心函数，调用context的下一个函数
+func (ctx *Context) Next() {
+	ctx.index++
+	if ctx.index < len(ctx.handlers) {
+		ctx.handlers[ctx.index](ctx)
+	}
+}
+
+func (ctx *Context) SetHandlers(handlers []HandlerFunc) {
+	ctx.handlers = handlers
 }

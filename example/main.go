@@ -7,7 +7,7 @@ import (
 
 func main() {
 	engine := ctp.Default()
-	engine.GET("/foo", ctp.TimeoutMiddleware(FooControllerHandler, time.Second*5))
+	engine.GET("/foo", ctp.Recovery(), ctp.Log(), FooControllerHandler)
 	g := engine.Group("/boo")
 	{
 		g.GET("/hello", FooControllerHandler)
