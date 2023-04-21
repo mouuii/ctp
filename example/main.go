@@ -6,7 +6,12 @@ import (
 
 func main() {
 	engine := ctp.Default()
-	engine.GET("foo", FooControllerHandler)
+	engine.GET("/foo", FooControllerHandler)
+	g := engine.Group("/boo")
+	{
+		g.GET("/hello", FooControllerHandler)
+		g.GET("/xx/:id", FooControllerHandler)
+	}
 	engine.Run(":8000")
 
 }

@@ -5,15 +5,21 @@ Ctp is a web framework written in [Go](https://go.dev/). Now , the purpose  for 
 ### Example
 
 ```go
+package main
+
+import (
+	"github.com/cit965/ctp"
+)
 
 func main() {
-	engin := ctp.Default()
-	engin.GET("foo", FooControllerHandler)
-	server := &http.Server{
-		Addr:    ":8000",
-		Handler: engin,
+	engine := ctp.Default()
+	engine.GET("/foo", FooControllerHandler)
+	g := engine.Group("/boo")
+	{
+		g.GET("/hello", FooControllerHandler)
+		g.GET("/xx/:id", FooControllerHandler)
 	}
-	server.ListenAndServe()
+	engine.Run(":8000")
 
 }
 
